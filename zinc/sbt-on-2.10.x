@@ -32,9 +32,10 @@
     sbt.snapshot.suffix: ${?SBT_SNAPSHOT_SUFFIX}
   }
   properties: [
+    "file:resolvers.properties"  # TODO - maybe this needs to be an optional environment variable?
     ${?SBT_VERSION_PROPERTIES_FILE}  # If a properties environment vairable exists, we load it
     "file:sbt-on-2.10.x.properties"
-  ]
+  ],
   build: {
     "projects":[
       {
@@ -90,34 +91,15 @@
         name:   "zinc",
         uri:    "https://github.com/typesafehub/zinc.git#"${vars.zinc-tag}
       }
-    ],
-    options:{cross-version:standard},
+    ]
+    cross-version: "standard"
   }
-  options: {
-    deploy: [
+  options.resolvers: ${?vars.resolvers}
+  options.deploy: [
       {
         uri=${?vars.publish-repo},
         credentials="/home/jenkinsdbuild/dbuild-josh-credentials.properties",
         projects:["sbt-republish"]
       }
-    ]
-    notifications: {
-      send:[{
-        projects: "."
-        send.to: "qbranch@typesafe.com"
-        when: bad
-      },{ 
-        projects: "."
-        kind: console
-        when: always
-      }]
-      default.send: {
-        from: "jenkins-dbuild <antonio.cunei@typesafe.com>"
-        smtp:{
-          server: "psemail.epfl.ch"
-          encryption: none
-        }
-      }
-    }
-  }
+  ]
 }
